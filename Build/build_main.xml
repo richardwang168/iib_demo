@@ -1,0 +1,103 @@
+<project name="IIB-CI-MAIN" default="dev" basedir="..">
+  <description>IIB Continuous Integration Demo (main script)</description>
+
+  <target name="init">
+    <tstamp />
+    <property environment="env" />
+    <property name="path.build" value="Build" />
+    <property file="${path.build}/build.properties" />
+  </target>
+
+  <target name="dev" depends="init">
+    <!-- clean workspace -->
+    <delete failonerror="false" verbose="true">
+      <fileset dir="." includes="**/*.bar" />
+      <fileset dir="TestClient/bin" includes="**/*" />
+      <fileset dir="TestClient" includes="**/*.jar" />
+      <fileset dir="HTTPEchoLibJava/bin" includes="**/*" />
+      <fileset dir="HTTPEchoLibJava" includes="**/*.jar" />
+      <fileset dir="HTTPJavaEchoAppJava/bin" includes="**/*" />
+      <fileset dir="HTTPJavaEchoAppJava" includes="**/*.jar" />
+    </delete>
+
+    <exec executable="id" />
+    <exec executable="mqsiservice">
+      <arg value="-v" />
+    </exec>
+    <exec executable="mqsilist" />
+    <exec executable="mqsilist">
+      <arg value="${iib.node}" />
+    </exec>
+
+    <!-- build workspace and create BAR file -->
+    <exec executable="mqsicreatebar">
+      <arg value="-data" />
+      <arg value="${basedir}" />
+      <arg value="-b" />
+      <arg value="${iib.bar}" />
+      <arg value="-p" />
+      <arg value="TestClient" />
+      <arg value="-a" />
+      <arg value="HTTPESQLEchoApp" />
+      <arg value="HTTPJavaEchoApp" />
+      <arg value="-l" />
+      <arg value="HTTPEchoLib" />
+      <arg value="-deployAsSource" />       <!-- we cannot inline artifacts in a shared library -->
+    </exec>
+
+    <!-- Alternative: package BAR file without building workspace
+      <exec executable="mqsipackagebar">
+        <arg value="-a" />
+        <arg value="${iib.bar}" />
+        <arg value="-k" />
+        <arg value="HTTPESQLEchoApp" />
+        <arg value="HTTPJavaEchoApp" />
+        <arg value="-y" />
+        <arg value="HTTPEchoLib" />
+      </exec>
+    -->
+
+    <exec executable="mqsiapplybaroverride">
+      <arg value="-b" />
+      <arg value="${iib.bar}" />
+      <arg value="-m" />
+      <arg value="main#HTTP Input.URLSpecifier=/${http.esql.echo.url}" />
+      <arg value="-k" />
+      <arg value="HTTPESQLEchoApp" />
+    </exec>
+
+    <exec executable="mqsiapplybaroverride">
+      <arg value="-b" />
+      <arg value="${iib.bar}" />
+      <arg value="-m" />
+      <arg value="main#HTTP Input.URLSpecifier=/${http.java.echo.url}" />
+      <arg value="-k" />
+      <arg value="HTTPJavaEchoApp" />
+    </exec>
+
+    <exec executable="mqsideploy">
+      <arg value="${iib.node}" />
+      <arg value="-e" />
+      <arg value="${iib.svr}" />
+      <arg value="-a" />
+      <arg value="${iib.bar}" />
+      <arg value="-m" />
+    </exec>
+
+    <exec executable="mqsireportproperties">
+      <arg value="${iib.node}" />
+      <arg value="-e" />
+      <arg value="${iib.svr}" />
+      <arg value="-o" />
+      <arg value="HTTPConnector" />
+      <arg value="-r" />
+    </exec>
+
+    <java classname="demo.iib.ci.TestClient">
+      <arg value="${path.build}/build.properties" />
+      <classpath>
+        <pathelement location="TestClient/bin" />
+      </classpath>
+    </java>
+  </target>
+</project>
