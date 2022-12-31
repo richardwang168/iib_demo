@@ -21,12 +21,16 @@ pipeline {
             }
         }
         stage('connect-to-apic') {
-            sh "apic login -s ${apicEnvs['devServer']} -u richard.wang@fcl.crs -p Stamina168"
-            echo "Successfully Logged In: ${apicEnvs['devServer']}"
+            steps {
+                sh "apic login -s ${apicEnvs['devServer']} -u richard.wang@fcl.crs -p Stamina168"
+                echo "Successfully Logged In: ${apicEnvs['devServer']}"
+            }
         }
         stage('disconnect-from-apic') {
-            sh "apic logout -s ${apicEnvs['devServer']}"
-            echo "Successfully Logged out: from ${apicEnvs['devServer']}"
+            steps {
+                sh "apic logout -s ${apicEnvs['devServer']}"
+                echo "Successfully Logged out: from ${apicEnvs['devServer']}"
+            }
         }
     }
 }
