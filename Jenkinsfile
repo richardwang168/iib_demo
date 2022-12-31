@@ -7,6 +7,11 @@ pipeline {
         durabilityHint('PERFORMANCE_OPTIMIZED')
         disableConcurrentBuilds()
     }
+
+    environment {
+        DB_ENGINE    = 'sqlite'
+    }
+
     stages {
         stage('init') {
             steps {
@@ -22,13 +27,13 @@ pipeline {
         }
         stage('connect-to-apic') {
             steps {
-                sh "apic login -s ${apicEnvs['devServer']} -u richard.wang@fcl.crs -p Stamina168"
+                sh "${JENKINS_HOME}/bin/apic login -s ${apicEnvs['devServer']} -u richard.wang@fcl.crs -p Stamina168"
                 echo "Successfully Logged In: ${apicEnvs['devServer']}"
             }
         }
         stage('disconnect-from-apic') {
             steps {
-                sh "apic logout -s ${apicEnvs['devServer']}"
+                sh "${JENKINS_HOME}/bin/apic logout -s ${apicEnvs['devServer']}"
                 echo "Successfully Logged out: from ${apicEnvs['devServer']}"
             }
         }
