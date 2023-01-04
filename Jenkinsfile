@@ -19,15 +19,15 @@ pipeline {
                     echo "Workspace: ${env.WORKSPACE}"
                     apicEnvs = readProperties file: 'env.properties'
                     echo 'apicEnvs ::: '+ apicEnvs
-                    echo "PROP1 :::: ${apicEnvs['devServer']}"
-                    echo "PROP2 :::: ${apicEnvs['devProviderOrg']}"
-                    echo "PROP3 :::: ${apicEnvs['devCatalog']}"
+                    echo "PROP1 :::: ${apicEnvs['testServer']}"
+                    echo "PROP2 :::: ${apicEnvs['testProviderOrg']}"
+                    echo "PROP3 :::: ${apicEnvs['testCatalog']}"
                 }
             }
         }
         stage('connect-to-apic') {
             steps {
-                sh "${JENKINS_HOME}/bin/apic login -s ${apicEnvs['devServer']} -u richard.wang@fcl.crs -p Stamina168"
+                sh "${JENKINS_HOME}/bin/apic login -s ${apicEnvs['devServer']} -u jenkins -p bIdENTaRaLyh"
                 echo "Successfully Logged In: ${apicEnvs['devServer']}"
             }
         }
